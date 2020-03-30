@@ -11,6 +11,11 @@ import { HeaderComponent } from './header/header.component';
 import { LoginService } from './services/loginservices';
 import { CookieService } from 'ngx-cookie-service';
 import { NotesListComponent } from './notes-list/notes-list.component';
+import { NotesService } from './services/notesservice';
+import {MatTableModule} from '@angular/material/table';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatIconModule} from '@angular/material/icon';
 
 @NgModule({
   declarations: [
@@ -24,12 +29,17 @@ import { NotesListComponent } from './notes-list/notes-list.component';
     ReactiveFormsModule,
     HttpClientModule,
     FormsModule,
+    MatTableModule,
+    MatCheckboxModule,
     AppRoutingModule,
+    MatIconModule,
     RouterModule.forRoot([
-      { path: '', component: LoginComponent }
-    ])
+      { path: '', component: LoginComponent },
+      { path: 'notes', component: NotesListComponent }
+    ]),
+    BrowserAnimationsModule
   ],
-  providers: [LoginService, CookieService],
+  providers: [LoginService, CookieService, NotesService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

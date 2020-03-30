@@ -1,4 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { AccessToken } from '../services/loginservices';
+import { CookieService } from 'ngx-cookie-service';
+import { Router } from '@angular/router';
+import { NotesService } from '../services/notesservice';
+import { SelectionModel } from '@angular/cdk/collections';
+import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
   selector: 'app-notes-list',
@@ -6,10 +12,118 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./notes-list.component.css']
 })
 export class NotesListComponent implements OnInit {
+  notes: Notes[];
+  upload: boolean = false;
+  note: Notes = {};
+  access:AccessToken = {};
+  displayedColumns: string[];
 
-  constructor() { }
+  ngOnInit() {
+    this.getProducts();
+  }
+  constructor(private notesService: NotesService, private cookies: CookieService, private router: Router) {
 
-  ngOnInit(): void {
+    if (cookies.get("userInfo") === undefined || cookies.get("userInfo") === "") {
+      this.router.navigate(['']);
+    }else{
+      this.access = <AccessToken>JSON.parse(this.cookies.get("userInfo"))
+    }
   }
 
+  getProducts() {
+    this.notesService.getItems(this.access.userId).then(res => {
+      this.displayedColumns = [ 'select', 'header', 'description','star'];
+       this.notes = new MatTableDataSource<Notes>(res).data;
+    }).catch(err => {
+      alert("something went wrong");
+    })
+  }
+  textHeader: string = "New Note";
+  textEdit: string = "Upload"
+  update:boolean = false;
+  edit(note){
+    this.upload = !this.upload;
+    this.textHeader = "Edit Note";
+    this.textEdit = "Update";
+    this.update = true;
+    this.note = note;
+  }
+ 
+  openNewUplad() {
+    this.upload = !this.upload;
+    this.textHeader = "New Note";
+    this.textEdit = "Upload";
+    this.update = false;
+    this.note = {};
+  }
+  closeUpload(){
+    this.note = {};
+    this.upload = !this.upload;
+    this.note = {};
+  }
+
+  uploadData() {
+    console.log(this.note)
+    this.note.email = this.access.userId;
+    if(this.update){
+      this.notesService.updateProduct(this.note).then(
+        res => {
+          this.getProducts();
+          console.log("successfully updated")
+          this.upload = !this.upload;
+        })
+        .catch(err => {
+          alert("Somthing went wrong")
+        })
+    }else{
+      this.notesService.uploadProduct(this.note).then(
+        res => {
+          this.getProducts();
+          console.log("successfully upload")
+          this.upload = !this.upload;
+        })
+        .catch(err => {
+          alert("Somthing went wrong")
+        })
+    }
+    
+
+  }
+
+
+  selection = new SelectionModel<Notes>(true, []);
+  isAllSelected() {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.notes.length;
+    return numSelected === numRows;
+  }
+
+  /** Selects all rows if they are not all selected; otherwise clear selection. */
+  masterToggle() {
+    this.isAllSelected() ?
+        this.selection.clear() :
+        this.notes.forEach(row => this.selection.select(row));
+  }
+
+  /** The label for the checkbox on the passed row */
+  checkboxLabel(row?: Notes): string {
+    if (!row) {
+      return `${this.isAllSelected() ? 'select' : 'deselect'} all`;
+    }
+    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.position + 1}`;
+  }
+
+  delete(){
+    console.log(this.selection["_selected"]);
+  }
+
+
+}
+
+export interface Notes {
+  id?: string,
+  header?: string,
+  description?: string
+  email?:string
+  position?: number;
 }
