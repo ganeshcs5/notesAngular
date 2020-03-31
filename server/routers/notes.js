@@ -23,13 +23,22 @@ router.post('/', function (req, res, next) {
 
 });
 
+router.post('/deleteAll', function (req, res, next) {
+    let ids = req.body;
+    for (let index = 0; index < ids.length; index++) {
+        NotesDB.find({ _id:ids[index] }).remove().exec();
+        
+    }
+    res.json("deleted");
+    
+
+});
+
 router.put('/:id', function(req, res, next) {
     let obj = {};
     obj.id = req.body._id;
     obj.header = req.body.header;
     obj.description = req.body.description;
-    console.log(req.params.id)
-    console.log(obj)
     NotesDB.findOneAndUpdate({_id: req.params.id}, obj, function (err, post) {
         console.log(post)
       if (err) return next(err);

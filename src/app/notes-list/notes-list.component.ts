@@ -34,6 +34,7 @@ export class NotesListComponent implements OnInit {
     this.notesService.getItems(this.access.userId).then(res => {
       this.displayedColumns = [ 'select', 'header', 'description','star'];
        this.notes = new MatTableDataSource<Notes>(res).data;
+       this.selection = new SelectionModel<Notes>(true, []);
     }).catch(err => {
       alert("something went wrong");
     })
@@ -63,10 +64,9 @@ export class NotesListComponent implements OnInit {
   }
 
   uploadData() {
-    console.log(this.note)
     this.note.email = this.access.userId;
     if(this.update){
-      this.notesService.updateProduct(this.note).then(
+      this.notesService.updateNotes(this.note).then(
         res => {
           this.getProducts();
           console.log("successfully updated")
@@ -76,7 +76,7 @@ export class NotesListComponent implements OnInit {
           alert("Somthing went wrong")
         })
     }else{
-      this.notesService.uploadProduct(this.note).then(
+      this.notesService.uploadNotes(this.note).then(
         res => {
           this.getProducts();
           console.log("successfully upload")
@@ -114,7 +114,22 @@ export class NotesListComponent implements OnInit {
   }
 
   delete(){
-    console.log(this.selection["_selected"]);
+    let idsDelete:string[] = [];
+    let dataDelete = this.selection["_selected"];
+
+    for (let i = 0; i < dataDelete.length; i++) {
+      idsDelete.push(dataDelete[i]._id);
+    }
+    if(idsDelete.length > 0){
+      this.notesService.deleteNotes(idsDelete).then(
+        res => {
+          this.getProducts();
+        })
+        .catch(err => {
+          alert("Somthing went wrong")
+        })
+    }
+    
   }
 
 

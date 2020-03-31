@@ -7,14 +7,19 @@ import { Injectable } from '@angular/core';
 export class NotesService {
     constructor(private http: HttpClient, private cookies: CookieService) { }
 
-    uploadProduct(notes: Notes) {
+    uploadNotes(notes: Notes) {
       return this.http.post('http://localhost:3000/notes', notes)
         .toPromise()
         .then(res => { return <Notes[]>res; });
     }
 
-    updateProduct(notes: Notes) {
-      console.log(notes["_id"])
+    deleteNotes(ids: string[]){
+      return this.http.post('http://localhost:3000/notes/deleteAll', ids)
+      .toPromise()
+      .then(res => { return res; });
+    }
+
+    updateNotes(notes: Notes) {
       return this.http.put('http://localhost:3000/notes/'+notes["_id"], notes)
         .toPromise()
         .then(res => { return <Notes[]>res; });
