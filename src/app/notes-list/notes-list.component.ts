@@ -87,10 +87,10 @@ export class NotesListComponent implements OnInit {
         })
     }
     
+    
 
   }
-
-
+  
   selection = new SelectionModel<Notes>(true, []);
   isAllSelected() {
     const numSelected = this.selection.selected.length;
