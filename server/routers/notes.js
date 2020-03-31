@@ -40,7 +40,6 @@ router.put('/:id', function(req, res, next) {
     obj.header = req.body.header;
     obj.description = req.body.description;
     NotesDB.findOneAndUpdate({_id: req.params.id}, obj, function (err, post) {
-        console.log(post)
       if (err) return next(err);
       res.json(post);
     });
